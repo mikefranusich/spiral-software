@@ -360,7 +360,6 @@ Class(cachesim, rec(
             tag = self.tagstore[setidx][e].tag
         );
 
-        # paranoia
         Constraint(Length(tagidx) <= 1);
 
         if Length(tagidx) = 0 then
@@ -538,9 +537,6 @@ Class(cachesim, rec(
 
         # assign input/output arrays
         for i in Range1(gath) do
-
-            # paranoia
-            # Constraint(gath[i].func.domain() = scat[i].func.domain());
 
             gath[i].array := Last(arrays);
 

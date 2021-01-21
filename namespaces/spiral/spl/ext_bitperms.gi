@@ -270,7 +270,6 @@ CL := function(N, STR, CS)
     i := Log2Int(N/(E*S)) + 1;
     n := Log2Int(N);
 
-    # paranoia check
     if i-k < 1 then
         Error("Problem!!");
     fi;

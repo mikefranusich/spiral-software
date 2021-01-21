@@ -85,7 +85,6 @@ _divisorCacheTags := function(d, t)
     # extract the cache spec from the tag
     cs := tag.params[2];
 
-    # paranoia
     Constraint(ObjId(cs) = _CacheDesc());
 
     # d[1] LEFT side expansion
@@ -229,7 +228,6 @@ end;
 _loop := function(p, i)
     local idx, ii, a, c, size;
 
-    # paranoia, 'i' in range.
     Constraint(i >=1 and i <= Length(p));
 
     idx := [

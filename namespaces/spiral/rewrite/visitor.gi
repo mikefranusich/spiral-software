@@ -108,9 +108,6 @@ Class(HierarchicalVisitor, rec(
 #F traverse order is: objA parA parB parA1 parA2
 #F
     warnings := Set([]),
-    paranoiaMode := false, # <-- if this is true, then .visit() aborts when there is a mismatch of 
-                          # the method it finds with what .visitAs prescribes, otherwise,
-                          # it silently adds the mismatch to .warnings and continues
 
     visit := meth(arg)
         local self, o, orig, len, parents, newparents, v;
@@ -136,7 +133,6 @@ Class(HierarchicalVisitor, rec(
 
             v := getVisitAs(self, o);
 
-            # paranoia check to make sure we have an object
             Constraint(IsList(o) or (IsRec(o) and IsBound(o.__name__)));
 
             parents := Cond(IsList(o), [ObjId(o)], ShallowCopy(o.__bases__));
@@ -144,17 +140,9 @@ Class(HierarchicalVisitor, rec(
             # traverse the parent tree as given in the function comments
             for o in parents do
                 if IsBound(self.(o.__name__)) then
-
-                    # here is our paranoia check which will eventually
-                    # be removed after the transition is complete.
                     if (v <> false and v <> o.__name__) then
-                        if self.paranoiaMode then
-                            Error("visitAs object is different from object picked by hierarchy traversal. Call Marek.");
-                        else
-                            AddSet(self.warnings, [self,v,o]); 
-                        fi;
+                        AddSet(self.warnings, [self,v,o]); 
                     fi;
-
                     return ApplyFunc(self.(o.__name__), arg{[2..len]});
                 elif IsBound(o.__bases__) then
                     Append(parents, o.__bases__);
