@@ -1,5 +1,5 @@
 ##
-## Copyright (c) 2018-2021, Carnegie Mellon University
+## Copyright (c) 2018-2025, Carnegie Mellon University
 ## All rights reserved.
 ## 
 ## See LICENSE file for full information
@@ -182,6 +182,10 @@ set(SOURCES
     vector.h
     word.h
 )
+
+if (WIN32)
+    list (APPEND SOURCES win_dlfcn.c win_dlfcn.h)
+endif()
 
 add_executable(${PROJECT} ${SOURCES})
 set_property ( TARGET ${PROJECT} PROPERTY CUDA_ARCHITECTURES OFF)
