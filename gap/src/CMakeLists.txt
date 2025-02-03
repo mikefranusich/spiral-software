@@ -125,6 +125,7 @@ set(SOURCES
     args.h
     blister.h
     buf_list.h
+    cfunc.c
     coding.h
     comments.h
     complex.h
