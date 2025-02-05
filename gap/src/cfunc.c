@@ -28,6 +28,7 @@ Obj FunLoadLibrary(Obj hdCall) {
     char * usage = "usage: LoadLibrary(<library>)";
     Obj hd;
     char* libname;
+    void *handle;
     
     if (GET_SIZE_BAG(hdCall) != 2 * SIZE_HD) {
         return Error(usage, 0, 0);
@@ -38,7 +39,9 @@ Obj FunLoadLibrary(Obj hdCall) {
             
     printf("\n*** FunLoadLibrary(%s) ***\n", libname);
     
-    return INT_TO_HD(123);
+    handle = dlopen(libname, RTLD_LAZY);
+    
+    return INT_TO_HD(handle);
 }
 
 
