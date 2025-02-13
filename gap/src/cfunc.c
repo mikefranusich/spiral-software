@@ -48,8 +48,5 @@ Obj FunLoadLibrary(Obj hdCall) {
 
 
 void Init_CFunc() {
-    
-    printf("\n*** Init_CFunc() ***\n");
-    
     InstIntFunc("LoadLibrary", FunLoadLibrary); 
 }
