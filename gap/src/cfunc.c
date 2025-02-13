@@ -33,9 +33,8 @@ Obj FunLoadLibrary(Obj hdCall) {
     if (GET_SIZE_BAG(hdCall) != 2 * SIZE_HD) {
         return Error(usage, 0, 0);
     }
-    hd = EVAL( PTR_BAG(hdCall)[1] );
-    libname = (char*)HdToString(hd,
-            "<library> must be a String.\nUsage: %s", (Int)usage, 0);
+    hd = EVAL(PTR_BAG(hdCall)[1]);
+    libname = HdToString(hd, "<library> must be a String.\n%s", (Int)usage, 0);
             
     printf("\n*** FunLoadLibrary(%s) ***\n", libname);
     
@@ -45,8 +44,51 @@ Obj FunLoadLibrary(Obj hdCall) {
 }
 
 
+typedef void (*fptr)();
+
+Obj FunFunctionPointer(Obj hdCall) {
+    char * usage = "usage: FunctionPointer(<library handle>, <name>)";
+    Obj  hd1, hd2;
+    void *handle;
+    char* funcname;
+    void *funcptr;
+    
+    if (GET_SIZE_BAG(hdCall) != 3 * SIZE_HD) {
+        return Error(usage, 0, 0);
+    }
+    hd1 = EVAL(PTR_BAG(hdCall)[1]);
+    hd2 = EVAL(PTR_BAG(hdCall)[2]);
+    handle = HdToInt(hd1, usage, 0, 0);
+    funcname = HdToString(hd2, usage, 0, 0);
+            
+    printf("\n*** FunctionPointer(%d, %s) ***\n", handle, funcname);
+
+    funcptr = dlsym(handle, funcname);
+    
+    return INT_TO_HD(funcptr);
+}
+
+
+Obj FunCallCFunction(Obj hdCall) {
+    char * usage = "usage: CallCFunction(<function pointer>)";
+    Obj  hd1;
+    void *funcptr;
+    
+    hd1 = EVAL(PTR_BAG(hdCall)[1]);
+    funcptr = HdToInt(hd1, usage, 0, 0);
+    
+    printf("\n*** CallCFunction(%d) ***\n", funcptr);
+    
+    ((fptr)funcptr)();
+    
+    return INT_TO_HD(0);
+}
+
+
 
 
 void Init_CFunc() {
-    InstIntFunc("LoadLibrary", FunLoadLibrary); 
+    InstIntFunc("LoadLibrary", FunLoadLibrary);
+    InstIntFunc("FunctionPointer", FunFunctionPointer);
+    InstIntFunc("CallCFunction", FunCallCFunction);
 }
