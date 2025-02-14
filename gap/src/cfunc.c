@@ -24,60 +24,35 @@
 #include "eval.h"
 
 
-Obj FunLoadLibrary(Obj hdCall) {
-    char * usage = "usage: LoadLibrary(<library>)";
-    Obj hd;
-    char* libname;
-    void *handle;
-    
-    if (GET_SIZE_BAG(hdCall) != 2 * SIZE_HD) {
-        return Error(usage, 0, 0);
-    }
-    hd = EVAL(PTR_BAG(hdCall)[1]);
-    libname = HdToString(hd, "<library> must be a String.\n%s", (Int)usage, 0);
-            
-    printf("\n*** FunLoadLibrary(%s) ***\n", libname);
-    
-    handle = dlopen(libname, RTLD_LAZY);
-    
-    return INT_TO_HD(handle);
-}
-
-
 typedef void (*fptr)();
 
-Obj FunFunctionPointer(Obj hdCall) {
-    char * usage = "usage: FunctionPointer(<library handle>, <name>)";
+
+Obj FunCallCFunction(Obj hdCall) {
+    char * usage = "usage: CallCFunction(<library>, <function>, <args>...)";
     Obj  hd1, hd2;
-    void *handle;
+    char* libname;
     char* funcname;
+    void *handle;
     void *funcptr;
     
-    if (GET_SIZE_BAG(hdCall) != 3 * SIZE_HD) {
+    if (GET_SIZE_BAG(hdCall) < 3 * SIZE_HD) {
         return Error(usage, 0, 0);
     }
     hd1 = EVAL(PTR_BAG(hdCall)[1]);
     hd2 = EVAL(PTR_BAG(hdCall)[2]);
-    handle = HdToInt(hd1, usage, 0, 0);
-    funcname = HdToString(hd2, usage, 0, 0);
-            
-    printf("\n*** FunctionPointer(%d, %s) ***\n", handle, funcname);
-
+    
+    libname = HdToString(hd1, "<library> must be a String.\n%s", usage, 0);
+    funcname = HdToString(hd2, "<function> must be a String.\n%s", usage, 0);
+    
+    handle = dlopen(libname, RTLD_LAZY);
+    if (handle == 0) {
+        return Error("cannot open shared library %s", libname, 0);
+    }
+    
     funcptr = dlsym(handle, funcname);
-    
-    return INT_TO_HD(funcptr);
-}
-
-
-Obj FunCallCFunction(Obj hdCall) {
-    char * usage = "usage: CallCFunction(<function pointer>)";
-    Obj  hd1;
-    void *funcptr;
-    
-    hd1 = EVAL(PTR_BAG(hdCall)[1]);
-    funcptr = HdToInt(hd1, usage, 0, 0);
-    
-    printf("\n*** CallCFunction(%d) ***\n", funcptr);
+    if (funcptr == 0) {
+        return Error("cannot find function %s in library %s", funcname, libname);
+    }
     
     ((fptr)funcptr)();
     
@@ -88,7 +63,5 @@ Obj FunCallCFunction(Obj hdCall) {
 
 
 void Init_CFunc() {
-    InstIntFunc("LoadLibrary", FunLoadLibrary);
-    InstIntFunc("FunctionPointer", FunFunctionPointer);
     InstIntFunc("CallCFunction", FunCallCFunction);
 }
