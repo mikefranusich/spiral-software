@@ -107,6 +107,7 @@ set(SOURCES
     pcpresen.c
     list.c
     plist.c
+    plugins.c
     set.c
     vector.c
     vecffe.c
@@ -125,7 +126,6 @@ set(SOURCES
     args.h
     blister.h
     buf_list.h
-    cfunc.c
     coding.h
     comments.h
     complex.h

@@ -3,7 +3,7 @@
 //  See LICENSE for details
 
 //
-// cfunc.c -- support for loading dynamic libraries and calling C functions from GAP
+// plugins.c -- support for loading plugins
 //
 
 #include <stdlib.h>
@@ -69,6 +69,6 @@ Obj FunLoadPlugin(Obj hdCall) {
 }
 
 
-void Init_CFunc() {
+void Init_Plugins() {
     InstIntFunc("LoadPlugin", FunLoadPlugin);
 }
