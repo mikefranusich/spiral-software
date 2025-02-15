@@ -25,28 +25,37 @@
 
 
 typedef void (*fptr)();
+typedef fptr (*lookup_func)(char *);
+typedef void (*init_func)(lookup_func);
+
+fptr LookupFunctionPointer(char* name) {
+    if (strcmp(name, "InstIntFunc") == 0) {
+        return (fptr)InstIntFunc;
+    }
+    else {
+        return (fptr)0;
+    }
+}
 
 
-Obj FunCallCFunction(Obj hdCall) {
-    char * usage = "usage: CallCFunction(<library>, <function>, <args>...)";
-    Obj  hd1, hd2;
+Obj FunLoadPlugin(Obj hdCall) {
+    char * usage = "usage: LoadPlugin(<plugin>)";
+    Obj  hd1;
     char* libname;
-    char* funcname;
+    char* funcname = "init_plugin";
     void *handle;
     void *funcptr;
     
-    if (GET_SIZE_BAG(hdCall) < 3 * SIZE_HD) {
+    if (GET_SIZE_BAG(hdCall) != 2 * SIZE_HD) {
         return Error(usage, 0, 0);
     }
     hd1 = EVAL(PTR_BAG(hdCall)[1]);
-    hd2 = EVAL(PTR_BAG(hdCall)[2]);
     
-    libname = HdToString(hd1, "<library> must be a String.\n%s", usage, 0);
-    funcname = HdToString(hd2, "<function> must be a String.\n%s", usage, 0);
+    libname = HdToString(hd1, "<plugin> must be a String.\n%s", usage, 0);
     
     handle = dlopen(libname, RTLD_LAZY);
     if (handle == 0) {
-        return Error("cannot open shared library %s", libname, 0);
+        return Error("cannot open plugin %s", libname, 0);
     }
     
     funcptr = dlsym(handle, funcname);
@@ -54,14 +63,12 @@ Obj FunCallCFunction(Obj hdCall) {
         return Error("cannot find function %s in library %s", funcname, libname);
     }
     
-    ((fptr)funcptr)();
+    ((init_func)funcptr)(LookupFunctionPointer);
     
     return INT_TO_HD(0);
 }
 
 
-
-
 void Init_CFunc() {
-    InstIntFunc("CallCFunction", FunCallCFunction);
+    InstIntFunc("LoadPlugin", FunLoadPlugin);
 }
