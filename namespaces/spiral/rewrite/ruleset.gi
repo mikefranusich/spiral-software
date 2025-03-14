@@ -485,9 +485,11 @@ _ApplyAllRulesTopDown := function(expr, context, ruleset)
 	expr := apply_rules(_LookupRules(expr, ruleset), expr, context);
 	# recurse
 	# NOTE: do not enter context if expr has no children!
-	cx_enter(context, expr);
-	expr := map_children(expr, c -> _ApplyAllRulesTopDown(c, context, ruleset));
-	cx_leave(context, expr);
+    if (Length(_children(expr)) > 0) then
+        cx_enter(context, expr);
+        expr := map_children(expr, c -> _ApplyAllRulesTopDown(c, context, ruleset));
+        cx_leave(context, expr);
+    fi;
 	return expr;
 end;
 
