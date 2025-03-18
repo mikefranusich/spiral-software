@@ -356,6 +356,18 @@ RuleStrategyTiming := Ignore;
 RuleStatus := Ignore;
 RuleCheckSPL := false;
 
+
+RuleCounts := tab();
+IncrRuleCount := function(name)
+    if IsBound(RuleCounts.(name)) then
+        RuleCounts.(name) := RuleCounts.(name) + 1;
+    else
+        RuleCounts.(name) := 1;
+    fi;
+end;
+
+ApplyRulesCount := 0;
+
 apply_rules := function(rules, expr, context)
 	local rule, lhs, rhs, old;
     old:= 0;
@@ -363,18 +375,27 @@ apply_rules := function(rules, expr, context)
 		lhs := rule.from;
 		rhs := rule.to;
 		while PatternMatch(expr, lhs, context) and context.rlimit <> 0 do
+            ApplyRulesCount := ApplyRulesCount + 1;
+            IncrRuleCount(rule.name);
 			context.rlimit := context.rlimit - 1;
 			context.applied := context.applied + 1;
             if TraceIsActive() then
                 old := Copy(expr);
             fi;
-			RuleTrace(rule);
-			RuleStatus(rule, "OLD: ", [expr, "\n"]);
+			#RuleTrace(rule);
+			#RuleStatus(rule, "OLD: ", [expr, "\n"]);
+            
+            #PrintLine("Rule: ", rule.name);
+            #PrintLine("OLD: ", expr);
+            
 			if RuleCheckSPL then old := Copy(expr); fi;
 			if NumArgs(rhs)=1 then expr := rhs(expr);
 			else expr := rhs(expr, context);
 			fi;
-			RuleStatus(rule, "NEW: ", [expr, "\n"]);
+			#RuleStatus(rule, "NEW: ", [expr, "\n"]);
+            
+            #PrintLine("NEW: ", expr);
+            
 			trace_log.addRewrite(rule.name,old,expr, []);
 			if RuleCheckSPL then ChkSPL(old, expr, rule); fi;
 		od;
