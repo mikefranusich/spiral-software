@@ -322,11 +322,12 @@ Class(MergedRuleSet, RuleSet, rec(
 
 RewriteRules := (rule_set, rules) -> rule_set.addRules(rules);
 
-
+   
 _LookupRules := (expr, ruleset) -> let(
 	name := ObjId(expr).__name__, 
 	R := When(IsBound(ruleset._locked), ruleset._compiled, ruleset.compiled()),
 	When(IsBound(R.(name)), R.(name), []) :: When(IsBound(R.@), R.@, []));
+
 
 #_AddRule2 := function(op, from, to_func)
 #	 local rules;
@@ -369,26 +370,28 @@ end;
 ApplyRulesCount := 0;
 
 apply_rules := function(rules, expr, context)
-	local rule, lhs, rhs, old;
+	local rule, lhs, rhs, old, rset;
     old:= 0;
 	for rule in rules do
 		lhs := rule.from;
 		rhs := rule.to;
 		while PatternMatch(expr, lhs, context) and context.rlimit <> 0 do
-            ApplyRulesCount := ApplyRulesCount + 1;
-            IncrRuleCount(rule.name);
+            #ApplyRulesCount := ApplyRulesCount + 1;
+            #rset := Cond(IsBound(rule.owner), rule.owner.name, "Unamed");
+            #IncrRuleCount(rset::"."::rule.name);
 			context.rlimit := context.rlimit - 1;
 			context.applied := context.applied + 1;
-            if TraceIsActive() then
-                old := Copy(expr);
-            fi;
+            #if TraceIsActive() then
+            #    old := Copy(expr);
+            #fi;
 			#RuleTrace(rule);
 			#RuleStatus(rule, "OLD: ", [expr, "\n"]);
             
-            #PrintLine("Rule: ", rule.name);
+            #PrintLine("Rule: ", rset::"."::rule.name);
+            #PrintLine(rule);
             #PrintLine("OLD: ", expr);
             
-			if RuleCheckSPL then old := Copy(expr); fi;
+			#if RuleCheckSPL then old := Copy(expr); fi;
 			if NumArgs(rhs)=1 then expr := rhs(expr);
 			else expr := rhs(expr, context);
 			fi;
@@ -396,8 +399,8 @@ apply_rules := function(rules, expr, context)
             
             #PrintLine("NEW: ", expr);
             
-			trace_log.addRewrite(rule.name,old,expr, []);
-			if RuleCheckSPL then ChkSPL(old, expr, rule); fi;
+			#trace_log.addRewrite(rule.name,old,expr, []);
+			#if RuleCheckSPL then ChkSPL(old, expr, rule); fi;
 		od;
 	od;
 	return expr;
@@ -496,14 +499,19 @@ empty_cx := () -> tab(
 
 
 _ApplyAllRulesTopDown := function(expr, context, ruleset)
+    local rule_list;
 	if (not IsRec(expr) or not IsBound(expr.name)) and (not IsList(expr) or BagType(expr) in [T_STRING, T_RANGE]) then
 		return expr;
 	fi;
 	if IsBound(ruleset.__avoid__) and ObjId(expr) in ruleset.__avoid__ then
 		return expr;
 	fi;
+    rule_list := _LookupRules(expr, ruleset);
+    if rule_list = [] then
+        return expr;
+    fi;
 	# apply rules
-	expr := apply_rules(_LookupRules(expr, ruleset), expr, context);
+	expr := apply_rules(rule_list, expr, context);
 	# recurse
 	# NOTE: do not enter context if expr has no children!
     if (Length(_children(expr)) > 0) then

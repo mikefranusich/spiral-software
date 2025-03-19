@@ -330,7 +330,7 @@ PatternMatchCount := 0;
 PatternMatch := function(obj, shape, cx)
 	local ch, numch, shlen, res;
     
-    PatternMatchCount := PatternMatchCount + 1;
+    #PatternMatchCount := PatternMatchCount + 1;
 	
 	if not IsList(shape) or BagType(shape) in [T_STRING,T_RANGE] then
 		return _match_id(obj, shape, cx);
