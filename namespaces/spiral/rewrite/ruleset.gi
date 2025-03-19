@@ -376,9 +376,9 @@ apply_rules := function(rules, expr, context)
 		lhs := rule.from;
 		rhs := rule.to;
 		while PatternMatch(expr, lhs, context) and context.rlimit <> 0 do
-            #ApplyRulesCount := ApplyRulesCount + 1;
-            #rset := Cond(IsBound(rule.owner), rule.owner.name, "Unamed");
-            #IncrRuleCount(rset::"."::rule.name);
+            ApplyRulesCount := ApplyRulesCount + 1;
+            rset := Cond(IsBound(rule.owner), rule.owner.name, "Unamed");
+            IncrRuleCount(rset::"."::rule.name);
 			context.rlimit := context.rlimit - 1;
 			context.applied := context.applied + 1;
             #if TraceIsActive() then
