@@ -322,12 +322,11 @@ Class(MergedRuleSet, RuleSet, rec(
 
 RewriteRules := (rule_set, rules) -> rule_set.addRules(rules);
 
-   
+
 _LookupRules := (expr, ruleset) -> let(
 	name := ObjId(expr).__name__, 
 	R := When(IsBound(ruleset._locked), ruleset._compiled, ruleset.compiled()),
 	When(IsBound(R.(name)), R.(name), []) :: When(IsBound(R.@), R.@, []));
-
 
 #_AddRule2 := function(op, from, to_func)
 #	 local rules;
@@ -502,19 +501,13 @@ empty_cx := () -> tab(
 
 
 _ApplyAllRulesTopDown := function(expr, context, ruleset)
-    local rule_list;
 	if (not IsRec(expr) or not IsBound(expr.name)) and (not IsList(expr) or BagType(expr) in [T_STRING, T_RANGE]) then
 		return expr;
 	fi;
 	if IsBound(ruleset.__avoid__) and ObjId(expr) in ruleset.__avoid__ then
 		return expr;
 	fi;
-    rule_list := _LookupRules(expr, ruleset);
-    if rule_list = [] then
-        return expr;
-    fi;
-	# apply rules
-	expr := apply_rules(rule_list, expr, context);
+	expr := apply_rules(_LookupRules(expr, ruleset), expr, context);
 	# recurse
 	# NOTE: do not enter context if expr has no children!
     if (Length(_children(expr)) > 0) then
