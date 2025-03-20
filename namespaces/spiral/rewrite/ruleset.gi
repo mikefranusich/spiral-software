@@ -408,12 +408,15 @@ end;
 
 # non-iterative version (no more: while PatternMatch(...) do ...)
 apply_rules_ni := function(rules, expr, context)
-	local rule, lhs, rhs, old;
+	local rule, lhs, rhs, old, rset;
     old := 0;
 	for rule in rules do
 		lhs := rule.from;
 		rhs := rule.to;
 		if PatternMatch(expr, lhs, context) and context.rlimit <> 0 then
+            ApplyRulesCount := ApplyRulesCount + 1;
+            rset := Cond(IsBound(rule.owner), rule.owner.name, "Unamed");
+            IncrRuleCount(rset::"."::rule.name);
 			context.rlimit := context.rlimit - 1;
 			context.applied := context.applied + 1;
             if TraceIsActive() then
