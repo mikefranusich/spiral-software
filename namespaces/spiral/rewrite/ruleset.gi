@@ -359,7 +359,8 @@ RuleCheckSPL := false;
 RewriteStats := rec(
     ruleCounts := tab(),
     patternMatchCount := 0,
-    applyRulesCount := 0
+    applyRulesCount := 0,
+    printDetails := false
 );
 
 
@@ -399,9 +400,10 @@ apply_rules := function(rules, expr, context)
 			#RuleTrace(rule);
 			#RuleStatus(rule, "OLD: ", [expr, "\n"]);
             
-            #PrintLine("Rule: ", rset::"."::rule.name);
-            #PrintLine(rule);
-            #PrintLine("OLD: ", expr);
+            if RewriteStats.printDetails then
+                PrintLine("Rule: ", rset::"."::rule.name);
+                PrintLine("OLD: ", expr);
+            fi;
             
 			#if RuleCheckSPL then old := Copy(expr); fi;
 			if NumArgs(rhs)=1 then expr := rhs(expr);
@@ -409,7 +411,9 @@ apply_rules := function(rules, expr, context)
 			fi;
 			#RuleStatus(rule, "NEW: ", [expr, "\n"]);
             
-            #PrintLine("NEW: ", expr);
+            if RewriteStats.printDetails then
+                PrintLine("NEW: ", expr);
+            fi;
             
 			#trace_log.addRewrite(rule.name,old,expr, []);
 			#if RuleCheckSPL then ChkSPL(old, expr, rule); fi;
@@ -594,11 +598,16 @@ TD := ApplyAllRulesTopDown;
 BU := ApplyAllRulesBottomUp;
 
 TDA := function(s, ruleset, opts)
-	local cx;
+	local cx, recnt;
 	cx := empty_cx();
 	cx.opts := opts;
 	cx.applied := 1;
+    recnt := 0;
 	while cx.applied > 0 do
+        recnt := recnt + 1;
+        if RewriteStats.printDetails then
+            PrintLine("RULESET: ", ruleset.name, " ", recnt);
+        fi;
 		cx.applied := 0; 
 		s := _ApplyAllRulesTopDown(s, cx, ruleset);
 	od;
