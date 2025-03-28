@@ -356,17 +356,30 @@ RuleStrategyTiming := Ignore;
 RuleStatus := Ignore;
 RuleCheckSPL := false;
 
+RewriteStats := rec(
+    ruleCounts := tab(),
+    patternMatchCount := 0,
+    applyRulesCount := 0
+);
 
-RuleCounts := tab();
+
+IncrPatternMatchCount := function()
+    RewriteStats.patternMatchCount := RewriteStats.patternMatchCount + 1;
+end;
+
+
 IncrRuleCount := function(name)
-    if IsBound(RuleCounts.(name)) then
-        RuleCounts.(name) := RuleCounts.(name) + 1;
+    if IsBound(RewriteStats.ruleCounts.(name)) then
+        RewriteStats.ruleCounts.(name) := RewriteStats.ruleCounts.(name) + 1;
     else
-        RuleCounts.(name) := 1;
+        RewriteStats.ruleCounts.(name) := 1;
     fi;
 end;
 
-ApplyRulesCount := 0;
+
+IncrApplyRulesCount := function()
+    RewriteStats.applyRulesCount := RewriteStats.applyRulesCount + 1;
+end;
 
 apply_rules := function(rules, expr, context)
 	local rule, lhs, rhs, old, rset;
@@ -375,7 +388,7 @@ apply_rules := function(rules, expr, context)
 		lhs := rule.from;
 		rhs := rule.to;
 		while PatternMatch(expr, lhs, context) and context.rlimit <> 0 do
-            ApplyRulesCount := ApplyRulesCount + 1;
+            IncrApplyRulesCount();
             rset := Cond(IsBound(rule.owner), rule.owner.name, "Unamed");
             IncrRuleCount(rset::"."::rule.name);
 			context.rlimit := context.rlimit - 1;
@@ -413,7 +426,7 @@ apply_rules_ni := function(rules, expr, context)
 		lhs := rule.from;
 		rhs := rule.to;
 		if PatternMatch(expr, lhs, context) and context.rlimit <> 0 then
-            ApplyRulesCount := ApplyRulesCount + 1;
+            IncrApplyRulesCount();
             rset := Cond(IsBound(rule.owner), rule.owner.name, "Unamed");
             IncrRuleCount(rset::"."::rule.name);
 			context.rlimit := context.rlimit - 1;

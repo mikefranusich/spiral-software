@@ -324,13 +324,12 @@ Declare(cx_enter, cx_leave, empty_cx, apply_rules_ni, _SubstBottomUp, _SubstTopD
 #	For plain matches use empty context table empty_cx().
 #
 
-PatternMatchCount := 0;
-
+Declare(IncrPatternMatchCount);
 
 PatternMatch := function(obj, shape, cx)
 	local ch, numch, shlen, res;
     
-    PatternMatchCount := PatternMatchCount + 1;
+    IncrPatternMatchCount();
 	
 	if not IsList(shape) or BagType(shape) in [T_STRING,T_RANGE] then
 		return _match_id(obj, shape, cx);
