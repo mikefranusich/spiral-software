@@ -458,6 +458,60 @@ Obj             IntHexString(Obj str)
 	}
 }
 
+
+
+void GAPint_to_GMPbigint(mpz_t bignum, Obj gapint) {
+    int count, size;
+    
+    if (IS_INTOBJ(gapint)) {
+#ifdef WIN64  
+    // Windows long int is 4 bytes
+    Int llint = INT_INTOBJ(gapint);
+    int isneg = llint < 0;
+    if (isneg) {
+        llint *= -1;
+    }
+    mpz_import(bignum, 2, -1, 4, -1, 0, &llint);
+    if (isneg) {
+        mpz_neg(bignum, bignum);
+    }
+#else
+    mpz_set_si(bignum, INT_INTOBJ(gapint));
+#endif    
+    }
+    else if (TNUM_OBJ(gapint) == T_INTNEG || TNUM_OBJ(gapint) == T_INTPOS) {
+        count = SIZE_INT(gapint);
+        size = sizeof(TypDigit);
+        mpz_import(bignum, count, -1, size, -1, 0, ADDR_INT(gapint));
+        if (TNUM_OBJ(gapint) == T_INTNEG) {
+            mpz_neg(bignum, bignum);
+        }
+    }
+    else {
+        mpz_set_si(bignum, INT_INTOBJ(0));
+    }
+}
+
+
+Obj GMPbigint_to_GAPint(const mpz_t bignum)
+{
+    int count, size;
+    Obj gapint;
+    int bits = mpz_sizeinbase(bignum, bits);
+    
+    if (bits <= NR_SMALL_INT_BITS) {
+        gapint = INTOBJ_INT(mpz_get_ui(bignum));
+    }
+ 
+    
+    
+    return gapint;
+}
+
+
+
+
+
 /****************************************************************************
 **
 *F  Log2Int( <self>, <int> ) . . . . . . . . . . .  nr of bits of integer - 1
