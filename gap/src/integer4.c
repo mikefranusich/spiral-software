@@ -1353,61 +1353,15 @@ Obj             ProdInt(
 	Obj                 opL,
 	Obj                 opR)
 {
-	Int                 i;              /* loop count, value for small int */
-	Int                 k;              /* loop count, value for small int */
-	UInt                c;              /* product of two digits           */
-	TypDigit            l;              /* one digit of the left operand   */
-	TypDigit* r;              /* pointer into the right operand  */
-	TypDigit* p;              /* pointer into the product        */
-	Obj                 prd;            /* handle of the result bag        */
-    mpz_t bn1, bn2, bnres;
+	Obj                 prd;
+    mpz_t               bn1, bn2, bnres;
     
-#if 0
-	/* multiplying two small integers                                      */
-	if (ARE_INTOBJS(opL, opR)) {
-
-		/* multiply two small integers: check result is a small product    */
-		prd = prod_intobjs(opL, opR);
-		if (prd != 0) {
-			return prd;
-		}
-
-		/* result is not a small product: get the integer values           */
-		i = INT_INTOBJ(opL);
-		k = INT_INTOBJ(opR);
-
-		/* allocate the product bag                                        */
-		if ((0 < i && 0 < k) || (i < 0 && k < 0))
-			prd = NewBag(T_INTPOS, 4 * sizeof(TypDigit));
-		else
-			prd = NewBag(T_INTNEG, 4 * sizeof(TypDigit));
-		p = ADDR_INT(prd);
-
-		/* make both operands positive                                     */
-		if (i < 0)  i = -i;
-		if (k < 0)  k = -k;
-
-		/* multiply digitwise                                              */
-		c = (UInt)(TypDigit)i * (TypDigit)k;            p[0] = (TypDigit)c;
-		c = (UInt)(TypDigit)i * (((UInt)k) >> NR_DIGIT_BITS)
-			+ (c >> NR_DIGIT_BITS);                        p[1] = (TypDigit)c;
-		p[2] = c >> NR_DIGIT_BITS;
-
-		c = (UInt)(TypDigit)(((UInt)i) >> NR_DIGIT_BITS) * (TypDigit)k
-			+ p[1];                                      p[1] = (TypDigit)c;
-		c = (UInt)(TypDigit)(((UInt)i) >> NR_DIGIT_BITS) * (TypDigit)(((UInt)k) >> NR_DIGIT_BITS)
-			+ p[2] + (c >> NR_DIGIT_BITS);                 p[2] = (TypDigit)c;
-		p[3] = (TypDigit)(c >> NR_DIGIT_BITS);
-        
-	} else { 
-#endif    
-        mpz_inits(bn1, bn2, bnres, 0);
-        GAPint_to_GMPbigint(bn1, opL);
-        GAPint_to_GMPbigint(bn2, opR);
-        mpz_mul(bnres, bn1, bn2);    
-        prd = GMPbigint_to_GAPint(bnres);
-        mpz_clears(bn1, bn2, bnres, 0);
-    //}
+    mpz_inits(bn1, bn2, bnres, 0);
+    GAPint_to_GMPbigint(bn1, opL);
+    GAPint_to_GMPbigint(bn2, opR);
+    mpz_mul(bnres, bn1, bn2);    
+    prd = GMPbigint_to_GAPint(bnres);
+    mpz_clears(bn1, bn2, bnres, 0);
     
     return prd; 
 }
