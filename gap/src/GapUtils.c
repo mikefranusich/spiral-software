@@ -369,22 +369,22 @@ extern Obj GMPbigint_to_GAPint(const mpz_t bignum);
 
 Bag FunTestGMP(Bag hdCall) {
     char *str;
-    mpz_t bignum;
-    Obj hdN;
+    mpz_t bn1, bn2, bnres;
+    Obj hd1, hd2, hdres;
     int  argc = GET_SIZE_BAG(hdCall) / SIZE_HD;
     
-    //return INTOBJ_INT(sizeof(long long int));
+    if (argc != 3) return StringToHd("Need two integer arguments");
+    hd1 = EVAL(PTR_BAG(hdCall)[1]);
+    hd2 = EVAL(PTR_BAG(hdCall)[2]);
     
-    if (argc != 2) return StringToHd("Need an integer argument");
-    hdN = EVAL(PTR_BAG(hdCall)[1]);
+    mpz_inits(bn1, bn2, bnres, 0);
+    GAPint_to_GMPbigint(bn1, hd1);
+    GAPint_to_GMPbigint(bn2, hd2);
+    mpz_mul(bnres, bn1, bn2);    
+    hdres = GMPbigint_to_GAPint(bnres);
+    mpz_clears(bn1, bn2, bnres, 0);
     
-    mpz_init(bignum);
-    GAPint_to_GMPbigint(bignum, hdN);
-        
-    //str =  mpz_get_str(0, 10, bignum);
-    //return StringToHd(str); 
-
-    return GMPbigint_to_GAPint(bignum);
+    return hdres;
 }
 
 
