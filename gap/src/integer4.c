@@ -495,15 +495,33 @@ void GAPint_to_GMPbigint(mpz_t bignum, Obj gapint) {
 
 Obj GMPbigint_to_GAPint(const mpz_t bignum)
 {
-    int count, size;
+    int count, size, numb;
     Obj gapint;
-    int bits = mpz_sizeinbase(bignum, bits);
+    Int llint;
+    int bits = mpz_sizeinbase(bignum, 2);
     
-    if (bits <= NR_SMALL_INT_BITS) {
-        gapint = INTOBJ_INT(mpz_get_ui(bignum));
+    if (bits <= 32) {
+        gapint = INTOBJ_INT(mpz_get_si(bignum));
     }
- 
-    
+    else if (bits <= NR_SMALL_INT_BITS) {
+        mpz_export(&llint, 0, -1, 4, -1, 0, bignum);
+        if (mpz_sgn(bignum) < 0) {
+            llint *= -1;
+        }
+        gapint = INTOBJ_INT(llint);
+    }
+    else {
+        size = sizeof(TypDigit);
+        numb = 8 * size;
+        count = (bits + numb - 1) / numb;
+        if (mpz_sgn(bignum) < 0) {
+            gapint = NewBag(T_INTNEG, count * size);
+        } 
+        else {
+            gapint = NewBag(T_INTPOS, count * size);
+        }
+        mpz_export(ADDR_INT(gapint), 0, -1, size, -1, 0, bignum);
+    }
     
     return gapint;
 }

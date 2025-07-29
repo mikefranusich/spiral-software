@@ -381,10 +381,10 @@ Bag FunTestGMP(Bag hdCall) {
     mpz_init(bignum);
     GAPint_to_GMPbigint(bignum, hdN);
         
-    str =  mpz_get_str(0, 10, bignum);
-    return StringToHd(str); 
+    //str =  mpz_get_str(0, 10, bignum);
+    //return StringToHd(str); 
 
-    //return GMPbigint_to_GAPint(bignum);
+    return GMPbigint_to_GAPint(bignum);
 }
 
 
