@@ -97,6 +97,8 @@
 #include        <stdlib.h>
 #include        "integer4.h"            /* integers                        */
 
+#include <gmp.h>
+
 /* GAP3 only has Error() */
 #define ErrorReturnObj(err_msg, arg1, arg2, msg) \
      Error(err_msg " " msg, arg1, arg2);

@@ -359,12 +359,91 @@ Bag FunPathSep(Bag hdCall) {
     return StringToHd(sep);
 }
 
+#include <gmp.h>
+#include "objects.h"
+#include "integer4.h"
+
+#define SIZE_INT(op)    (SIZE_OBJ(op) / sizeof(TypDigit))
+#define ADDR_INT(op)    ((TypDigit*)PTR_BAG(op))
+
+void GAPint_to_GMPbigint(mpz_t bignum, Obj gapint) {
+    int count, size;
+    
+    if (IS_INTOBJ(gapint)) {
+#ifdef WIN64  
+    // Windows long int is 4 bytes
+    Int llint = INT_INTOBJ(gapint);
+    int isneg = llint < 0;
+    if (isneg) {
+        llint *= -1;
+    }
+    mpz_import(bignum, 2, -1, 4, -1, 0, &llint);
+    if (isneg) {
+        mpz_neg(bignum, bignum);
+    }
+#else
+    mpz_set_si(bignum, INT_INTOBJ(gapint));
+#endif    
+    }
+    else if (TNUM_OBJ(gapint) == T_INTNEG || TNUM_OBJ(gapint) == T_INTPOS) {
+        count = SIZE_INT(gapint);
+        size = sizeof(TypDigit);
+        mpz_import(bignum, count, -1, size, -1, 0, ADDR_INT(gapint));
+        if (TNUM_OBJ(gapint) == T_INTNEG) {
+            mpz_neg(bignum, bignum);
+        }
+    }
+    else {
+        mpz_set_si(bignum, INT_INTOBJ(0));
+    }
+}
+
+
+#if 0
+Obj GMPbigint_to_GAPint(const mpz_t bignum)
+{
+    int count, size;
+    Obj gapint;
+    int bits = mpz_sizeinbase(bignum, bits);
+    
+    if (bits <= NR_SMALL_INT_BITS) {
+        gapint = INTOBJ_INT(mpz_get_ui(bignum));
+    }
+    
+    
+    
+    return gapint;
+}
+#endif
+
+
+Bag FunTestGMP(Bag hdCall) {
+    char *str;
+    mpz_t bignum;
+    Obj hdN;
+    int  argc = GET_SIZE_BAG(hdCall) / SIZE_HD;
+    
+    //return INTOBJ_INT(sizeof(long long int));
+    
+    if (argc != 2) return StringToHd("Need an integer argument");
+    hdN = EVAL(PTR_BAG(hdCall)[1]);
+    
+    mpz_init(bignum);
+    GAPint_to_GMPbigint(bignum, hdN);
+        
+    str =  mpz_get_str(0, 10, bignum);
+    return StringToHd(str); 
+
+    //return GMPbigint_to_GAPint(bignum);
+}
+
 
 void     Init_GAP_Utils(void) {
 
     InstIntFunc("FileExists", FunFileExists);
     InstIntFunc("sys_rm", FunSysRm);
     InstIntFunc("PathSep", FunPathSep);
+    InstIntFunc("TestGMP", FunTestGMP);
 }
 
 

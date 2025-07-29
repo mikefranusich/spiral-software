@@ -36,13 +36,16 @@ if (SPIRAL_COMPILE_INPLACE)
                  make | make install")
     endif()
 endif()
+
+set(GMP_INSTALL_DIR "C:/GMP")
+set(GMP_LIB_DIR ${GMP_INSTALL_DIR}/lib)
   
 set(SPIRAL_CONFIG_DIR ${SPIRAL_SOURCE_DIR}/config)
 set(SPIRAL_GEN_INC ${SPIRAL_BINARY_DIR}/include/spiral)
 
 ##  set(CMAKE_C_STANDARD 99)
 
-include_directories(${SPIRAL_GEN_INC})
+include_directories(${SPIRAL_GEN_INC} ${GMP_INSTALL_DIR}/include)
 
 # Check for the git commit hash, if using a git repo
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")

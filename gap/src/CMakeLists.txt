@@ -192,7 +192,7 @@ set_property(SOURCE system.c PROPERTY COMPILE_DEFINITIONS ${SYSSRCS_COMPILE_DEFN
 set_target_properties(${PROJECT} PROPERTIES OUTPUT_NAME_DEBUG "${PROJECT}d")
 
 if (WIN32)
-    target_link_libraries(${PROJECT} shlwapi.lib)
+    target_link_libraries(${PROJECT} shlwapi.lib ${GMP_LIB_DIR}/libgmp-13.lib)
 else()
     target_link_libraries(${PROJECT} m)
 endif()
