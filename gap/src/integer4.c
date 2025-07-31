@@ -1493,8 +1493,12 @@ Obj             ProdInt(
 
 	}
 
+
 	/* multiply two large integers                                         */
 	else {
+		
+		
+#if 0		
         if ((SIZE_INT(opL) >= 64) && (SIZE_INT(opR) >= 64)) {
             mpz_inits(bn1, bn2, bnres, 0);
             GAPint_to_GMPbigint(bn1, opL);
@@ -1504,7 +1508,7 @@ Obj             ProdInt(
             mpz_clears(bn1, bn2, bnres, 0);
             return prd;
         }
-
+#endif
         
 #if 1        
 

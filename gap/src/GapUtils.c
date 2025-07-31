@@ -372,18 +372,50 @@ Bag FunTestGMP(Bag hdCall) {
     mpz_t bn1, bn2, bnres;
     Obj hd1, hd2, hdres;
     int  argc = GET_SIZE_BAG(hdCall) / SIZE_HD;
+	UInt t1,t2;
+	int loops = 100000;
     
     if (argc != 3) return StringToHd("Need two integer arguments");
     hd1 = EVAL(PTR_BAG(hdCall)[1]);
     hd2 = EVAL(PTR_BAG(hdCall)[2]);
+	
+	
+	t1 = SyTime();
+	for (int i = 1; i <= loops; i++) {
+		hdres = ProdInt(hd1,hd2);  
+	}
+	t2 = SyTime();
+	printf("time for %d iterations of ProdInt: %d\n", loops, t2 - t1);
+	
+	
     
     mpz_inits(bn1, bn2, bnres, 0);
     GAPint_to_GMPbigint(bn1, hd1);
     GAPint_to_GMPbigint(bn2, hd2);
-    mpz_mul(bnres, bn1, bn2);    
-    hdres = GMPbigint_to_GAPint(bnres);
-    mpz_clears(bn1, bn2, bnres, 0);
-    
+	
+	t1 = SyTime();
+	for (int i = 1; i <= loops; i++) {
+		mpz_mul(bnres, bn1, bn2);  
+	}
+	t2 = SyTime();
+	printf("time for %d iterations of mpz_mul: %d\n", loops, t2 - t1);
+	
+	mpz_clears(bn1, bn2, bnres, 0);
+	
+	
+	
+	t1 = SyTime();
+	for (int i = 1; i <= loops; i++) {
+		mpz_inits(bn1, bn2, bnres, 0);
+		GAPint_to_GMPbigint(bn1, hd1);
+		GAPint_to_GMPbigint(bn2, hd2);
+		mpz_mul(bnres, bn1, bn2);  
+		hdres = GMPbigint_to_GAPint(bnres);
+		mpz_clears(bn1, bn2, bnres, 0);
+	}
+	t2 = SyTime();
+	printf("time for %d iterations of mpz_mul with init/conv/clear: %d\n", loops, t2 - t1);	
+	
     return hdres;
 }
 
