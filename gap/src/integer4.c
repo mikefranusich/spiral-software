@@ -1397,17 +1397,160 @@ Obj             ProdInt(
 		c = (UInt)(TypDigit)(((UInt)i) >> NR_DIGIT_BITS) * (TypDigit)(((UInt)k) >> NR_DIGIT_BITS)
 			+ p[2] + (c >> NR_DIGIT_BITS);                 p[2] = (TypDigit)c;
 		p[3] = (TypDigit)(c >> NR_DIGIT_BITS);
+
+	}
+
+	/* multiply a small and a large integer                                */
+	else if (IS_INTOBJ(opL) || IS_INTOBJ(opR)) {
+
+		/* make the left operand the small one                             */
+		if (IS_INTOBJ(opR)) {
+			i = INT_INTOBJ(opR);  opR = opL;
+		}
+		else {
+			i = INT_INTOBJ(opL);
+		}
+
+		/* handle trivial cases first                                      */
+		if (i == 0)
+			return INTOBJ_INT(0);
+		if (i == 1)
+			return opR;
+
+		/* the large integer 1<<28 times -1 is the small integer -(1<<28)  */
+		if (i == -1
+			&& TNUM_OBJ(opR) == T_INTPOS && SIZE_INT(opR) == 4
+			&& ADDR_INT(opR)[3] == 0
+			&& ADDR_INT(opR)[2] == 0
+			&& ADDR_INT(opR)[1] == (NUM_TO_UINT(1) << (NR_SMALL_INT_BITS - NR_DIGIT_BITS))
+			&& ADDR_INT(opR)[0] == 0)
+			return INTOBJ_INT(-(Int)(NUM_TO_UINT(1) << NR_SMALL_INT_BITS));
+
+		/* multiplication by -1 is easy, just switch the sign and copy     */
+		if (i == -1) {
+			if (TNUM_OBJ(opR) == T_INTPOS)
+				prd = NewBag(T_INTNEG, SIZE_OBJ(opR));
+			else
+				prd = NewBag(T_INTPOS, SIZE_OBJ(opR));
+			r = ADDR_INT(opR);
+			p = ADDR_INT(prd);
+			for (k = SIZE_INT(opR) / 4; k != 0; k--) {
+				/*N should be: *p2++=*r2++;  *p2++=*r2++;                  */
+				*p++ = *r++;  *p++ = *r++;  *p++ = *r++;  *p++ = *r++;
+			}
+			return prd;
+		}
+
+		/* allocate a bag for the result                                   */
+		if ((0 < i && TNUM_OBJ(opR) == T_INTPOS)
+			|| (i < 0 && TNUM_OBJ(opR) == T_INTNEG))
+			prd = NewBag(T_INTPOS, (SIZE_INT(opR) + 4) * sizeof(TypDigit));
+		else
+			prd = NewBag(T_INTNEG, (SIZE_INT(opR) + 4) * sizeof(TypDigit));
+		if (i < 0)  i = -i;
+
+		/* multiply with the lower digit of the left operand               */
+		l = (TypDigit)i;
+		if (l != 0) {
+
+			r = ADDR_INT(opR);
+			p = ADDR_INT(prd);
+			c = 0;
+
+			/* multiply the right with this digit and store in the product */
+			for (k = SIZE_INT(opR) / 4; k != 0; k--) {
+				c = (UInt)l * (UInt)* r++ + (c >> NR_DIGIT_BITS);  *p++ = (TypDigit)c;
+				c = (UInt)l * (UInt)* r++ + (c >> NR_DIGIT_BITS);  *p++ = (TypDigit)c;
+				c = (UInt)l * (UInt)* r++ + (c >> NR_DIGIT_BITS);  *p++ = (TypDigit)c;
+				c = (UInt)l * (UInt)* r++ + (c >> NR_DIGIT_BITS);  *p++ = (TypDigit)c;
+			}
+			*p = (TypDigit)(c >> NR_DIGIT_BITS);
+		}
+
+		/* multiply with the larger digit of the left operand              */
+		l = ((UInt)i) >> NR_DIGIT_BITS;
+		if (l != 0) {
+
+			r = ADDR_INT(opR);
+			p = ADDR_INT(prd) + 1;
+			c = 0;
+
+			/* multiply the right with this digit and add into the product */
+			for (k = SIZE_INT(opR) / 4; k != 0; k--) {
+				c = (UInt)l * (UInt)* r++ + (UInt)* p + (c >> NR_DIGIT_BITS); *p++ = (TypDigit)c;
+				c = (UInt)l * (UInt)* r++ + (UInt)* p + (c >> NR_DIGIT_BITS); *p++ = (TypDigit)c;
+				c = (UInt)l * (UInt)* r++ + (UInt)* p + (c >> NR_DIGIT_BITS); *p++ = (TypDigit)c;
+				c = (UInt)l * (UInt)* r++ + (UInt)* p + (c >> NR_DIGIT_BITS); *p++ = (TypDigit)c;
+			}
+			*p = (TypDigit)(c >> NR_DIGIT_BITS);
+		}
+
+		/* remove the leading zeroes, note that there can't be more than 6 */
+		p = ADDR_INT(prd) + SIZE_INT(prd);
+		if (p[-4] == 0 && p[-3] == 0 && p[-2] == 0 && p[-1] == 0) {
+			Resize(prd, (SIZE_INT(prd) - 4) * sizeof(TypDigit));
+		}
+
+	}
+
+	/* multiply two large integers                                         */
+	else {
+        if ((SIZE_INT(opL) >= 64) && (SIZE_INT(opR) >= 64)) {
+            mpz_inits(bn1, bn2, bnres, 0);
+            GAPint_to_GMPbigint(bn1, opL);
+            GAPint_to_GMPbigint(bn2, opR);
+            mpz_mul(bnres, bn1, bn2);    
+            prd = GMPbigint_to_GAPint(bnres);
+            mpz_clears(bn1, bn2, bnres, 0);
+            return prd;
+        }
+
         
-	} else {    
-        mpz_inits(bn1, bn2, bnres, 0);
-        GAPint_to_GMPbigint(bn1, opL);
-        GAPint_to_GMPbigint(bn2, opR);
-        mpz_mul(bnres, bn1, bn2);    
-        prd = GMPbigint_to_GAPint(bnres);
-        mpz_clears(bn1, bn2, bnres, 0);
-    }
-    
-    return prd; 
+#if 1        
+
+		/* make the left operand the smaller one, for performance          */
+		if (SIZE_INT(opL) > SIZE_INT(opR)) {
+			prd = opR;  opR = opL;  opL = prd;
+		}
+
+		/* allocate a bag for the result                                   */
+		if (TNUM_OBJ(opL) == TNUM_OBJ(opR))
+			prd = NewBag(T_INTPOS, SIZE_OBJ(opL) + SIZE_OBJ(opR));
+		else
+			prd = NewBag(T_INTNEG, SIZE_OBJ(opL) + SIZE_OBJ(opR));
+
+		/* run through the digits of the left operand                      */
+		for (i = 0; i < (Int)SIZE_INT(opL); i++) {
+
+			/* set up pointer for one loop iteration                       */
+			l = ADDR_INT(opL)[i];
+			if (l == 0)  continue;
+			r = ADDR_INT(opR);
+			p = ADDR_INT(prd) + i;
+			c = 0;
+
+			/* multiply the right with this digit and add into the product */
+			for (k = SIZE_INT(opR) / 4; k != 0; k--) {
+				c = (UInt)l * (UInt)* r++ + (UInt)* p + (c >> NR_DIGIT_BITS); *p++ = (TypDigit)c;
+				c = (UInt)l * (UInt)* r++ + (UInt)* p + (c >> NR_DIGIT_BITS); *p++ = (TypDigit)c;
+				c = (UInt)l * (UInt)* r++ + (UInt)* p + (c >> NR_DIGIT_BITS); *p++ = (TypDigit)c;
+				c = (UInt)l * (UInt)* r++ + (UInt)* p + (c >> NR_DIGIT_BITS); *p++ = (TypDigit)c;
+			}
+			*p = (TypDigit)(c >> NR_DIGIT_BITS);
+		}
+
+		/* remove the leading zeroes, note that there can't be more than 7 */
+		p = ADDR_INT(prd) + SIZE_INT(prd);
+		if (p[-4] == 0 && p[-3] == 0 && p[-2] == 0 && p[-1] == 0) {
+			Resize(prd, (SIZE_INT(prd) - 4) * sizeof(TypDigit));
+		}
+        
+#endif
+
+	}
+
+	/* return the product                                                  */
+	return prd;
 }
 
 
