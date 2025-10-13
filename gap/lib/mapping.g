@@ -16,6 +16,8 @@
 ##
 ##
 
+Declare(Mappings, CompositionMappingOps, InverseMappingOps, MappingByFunctionOps);
+
 
 #############################################################################
 ##
@@ -319,8 +321,7 @@ end;
 ##  of 'MappingOps'  and overlaying the default  functions with more specific
 ##  ones.
 ##
-MappingOps := OperationsRecord(
-    "MappingOps" );
+#MappingOps := OperationsRecord("MappingOps" );
 
 MappingOps.IsMapping := function ( map )
     local   isMap;      # 'true' if <map> is a mapping, result
@@ -457,6 +458,45 @@ MappingOps.IsEndomorphism := function ( map )
     return IsHomomorphism( map )
        and IsSubset( map.source, map.range );
 end;
+
+
+#############################################################################
+##
+#F  MappingOps.IsGroupHomomorphism(<fun>) . . . test if a function is a group
+#F                                                               homomorphism
+##
+MappingOps.IsGroupHomomorphism := function ( fun )
+    local   isHom;      # 'true' if <fun> is a homomorphism, result
+
+    # check that <fun> is a function
+    if not IsMapping( fun )  then
+        Error("<fun> must be a single valued mapping");
+    fi;
+
+    # test that source and range are groups
+    if not IsGroup( fun.source )  then
+        return false;
+    fi;
+    if not IsGroup( fun.range )  then
+        return false;
+    fi;
+
+    # test the linearity explicitely if the source is finite
+    if IsFinite( fun.source )  then
+        isHom := ForAll( Elements(fun.source),
+                        x -> ForAll( fun.source.generators,
+                                  y -> Image( fun, x * y )
+                                     = Image( fun, x ) * Image( fun, y ) ) );
+
+    # otherwise give up
+    else
+        Error("sorry, can not test if <fun> is a hom., infinite source");
+    fi;
+
+    # return the result
+    return isHom;
+end;
+
 
 
 #############################################################################
@@ -909,6 +949,43 @@ MappingOps.InverseMapping := function ( map )
 
     # return the inverse mapping
     return inv;
+end;
+
+
+#############################################################################
+##
+#F  MappingOps.KernelGroupHomomorphism(<hom>)  kernel of a group homomorphism
+##
+MappingOps.KernelGroupHomomorphism := function ( hom )
+    local   krn,        # kernel of <hom>, result
+            g;          # random element of source
+
+    # check that <hom> is a homomorphism
+    if not IsHomomorphism(hom)  then
+        Error("<hom> must be a homomorphism");
+    fi;
+    if not IsFinite( hom.source )  then
+        Error("sorry, cannot compute kernel of <hom>, infinite source");
+    fi;
+
+    #N  16-Dec-91 martin this used to be
+    #N  krn := AsSubgroup( Parent(hom.source),
+    #N              Filtered( Elements(hom.source),
+    #N                  elm -> Image(hom,elm) = hom.range.identity ) );
+
+    # compute the kernel by trying random elements
+    krn := TrivialSubgroup( Parent( hom.source ) );
+    while Size( hom.source ) / Size( krn ) <> Size( Image( hom ) )  do
+        g := Random( hom.source );
+        if hom.operations.ImageElm( hom, g ) = hom.range.identity
+            and not g in krn
+        then
+            krn := Closure( krn, g );
+        fi;
+    od;
+
+    # return the kernel
+    return krn;
 end;
 
 

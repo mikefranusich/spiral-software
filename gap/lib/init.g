@@ -210,7 +210,10 @@ Read := function ( name )
     fi;
 end;
 
+PrintTo("RealLibTraceAUTO.txt", "*** START ***\n");
+
 ReadLib := function ( name )
+    AppendTo("RealLibTraceAUTO.txt", name, "\n");   
     if not ReadPath( LIBNAME, name, ".g", "ReadLib" )  then
      Error("the library file '",name,"' must exist and be readable");
     fi;
@@ -288,12 +291,12 @@ CharTableLibrary := Ignore;
 BrauerTable := Ignore;
 
 
-AUTO( ReadLib( "abattoir" ),
-  LengthString, SubString, ConcatenationString, Edit, ProductPol, ValuePol,
-  MergedRecord, UnionBlist, IntersectionBlist, DifferenceBlist, SetPrintLevel,
-  Save, SetPkgname, PKGNAME, LOADED_PACKAGES, ReadPkg, ExecPkg, LoadPackage,
-  RequirePackage, IsOperationsRecord, OpsOps, OperationsRecord, EXEC,
-  False, True, PrintFactorsInt );
+#AUTO( ReadLib( "abattoir" ),
+#  LengthString, SubString, ConcatenationString, Edit, ProductPol, ValuePol,
+#  MergedRecord, UnionBlist, IntersectionBlist, DifferenceBlist, SetPrintLevel,
+#  Save, SetPkgname, PKGNAME, LOADED_PACKAGES, ReadPkg, ExecPkg, LoadPackage,
+#  RequirePackage, IsOperationsRecord, OpsOps, OperationsRecord, EXEC,
+#  False, True, PrintFactorsInt );
 
 AUTO( ReadLib( "agcent" ),
   MainEntryCSAgGroup, CentralCaseCentAgGroup, GeneralCaseCentAgGroup,
@@ -550,10 +553,10 @@ AUTO( ReadLib( "dispatch" ),
   FusionConjugacyClasses, KroneckerProduct, Closure, Centralizer, IsCentral,
   Base, IsZero, Eigenvalues );
 
-AUTO( ReadLib( "domain" ),
-  IsDomain, Domain, DomainOps, Elements, IsFinite, Size, IsSubset,
-  Intersection, IntersectionSet, Union, UnionSet, CartesianProduct,
-  Difference, Random, DefineName );
+#AUTO( ReadLib( "domain" ),
+#  IsDomain, Domain, DomainOps, Elements, IsFinite, Size, IsSubset,
+#  Intersection, IntersectionSet, Union, UnionSet, CartesianProduct,
+#  Difference, Random, DefineName );
 
 AUTO( ReadLib( "field" ),
   IsField, FieldOps, Conjugates, Norm, Trace, CharPol, MinPol,
@@ -616,18 +619,18 @@ AUTO( ReadLib( "gaussian" ),
   GaussianIntegersAsAdditiveGroupOps, IsGaussRat, GaussianRationalsOps,
   GaussianRationals, GaussianRationalsAsRingOps );
 
-AUTO( ReadLib( "group" ),
-  GroupString, GroupOps, Group, AsGroup, IsGroup, Parent, MaintainedGroupInfo,
-  Subgroup, AsSubgroup, CommutatorSubgroup, Core, NormalClosure,
-  NormalIntersection, Normalizer, NumberConjugacyClasses, PCore,
-  SylowSubgroup, ElementaryAbelianSeries, DisplayCompositionSeries,
-  PCentralSeries, SubnormalSeries, IsConjugate, IsNormal, IsSubgroup,
-  IsSubnormal, Index, Agemo, AgemoAbove, JenningsSeries,
-  DimensionsLoewyFactors, IsomorphismTypeFiniteSimpleGroup, IsConjugacyClass,
-  ConjugacyClassGroupOps, ConjugacyClass, IsRationalClass,
-  RationalClassGroupOps, RationalClass, ConjugateSubgroup, ConjugateSubgroups,
-  AbstractElementsGroup, Factorization, AgGroup, PermGroup,
-  IrreducibleGeneratingSet );
+#AUTO( ReadLib( "group" ),
+#  GroupString, GroupOps, Group, AsGroup, IsGroup, Parent, MaintainedGroupInfo,
+#  Subgroup, AsSubgroup, CommutatorSubgroup, Core, NormalClosure,
+#  NormalIntersection, Normalizer, NumberConjugacyClasses, PCore,
+#  SylowSubgroup, ElementaryAbelianSeries, DisplayCompositionSeries,
+# PCentralSeries, SubnormalSeries, IsConjugate, IsNormal, IsSubgroup,
+#  IsSubnormal, Index, Agemo, AgemoAbove, JenningsSeries,
+#  DimensionsLoewyFactors, IsomorphismTypeFiniteSimpleGroup, IsConjugacyClass,
+#  ConjugacyClassGroupOps, ConjugacyClass, IsRationalClass,
+#  RationalClassGroupOps, RationalClass, ConjugateSubgroup, ConjugateSubgroups,
+#  AbstractElementsGroup, Factorization, AgGroup, PermGroup,
+ # IrreducibleGeneratingSet );
 
 AUTO( ReadLib( "grpcoset" ),
   Transversal, RightTransversal, LeftTransversal, IsRightCoset, IsCoset,
@@ -655,17 +658,17 @@ AUTO( ReadLib( "grpctbl" ),
   StandardClassMatrixColumn, IdentificationGenericGroup, DxAbelianPreparation,
   AbelianNormalSubgroups );
 
-AUTO( ReadLib( "grpelms" ),
-  IsGroupElement, GroupElements, GroupElementsOps, GroupElementOps, Order,
-  LeftNormedComm, RightNormedComm );
+#AUTO( ReadLib( "grpelms" ),
+#  IsGroupElement, GroupElements, GroupElementsOps, GroupElementOps, Order,
+#  LeftNormedComm, RightNormedComm );
 
-AUTO( ReadLib( "grphomom" ),
-  IsGroupHomomorphism, GroupHomomorphismOps, CompositionGroupHomomorphismOps,
-  IdentityGroupHomomorphismOps, ConjugationGroupHomomorphism,
-  ConjugationGroupHomomorphismOps, InnerAutomorphism,
-  GroupHomomorphismByImages, GroupHomomorphismByImagesOps,
-  GroupHomomorphismByFunction, GroupHomomorphismByFunctionOps,
-  IsomorphismGroups );
+#AUTO( ReadLib( "grphomom" ),
+#  IsGroupHomomorphism, GroupHomomorphismOps, CompositionGroupHomomorphismOps,
+#  IdentityGroupHomomorphismOps, ConjugationGroupHomomorphism,
+#  ConjugationGroupHomomorphismOps, InnerAutomorphism,
+#  GroupHomomorphismByImages, GroupHomomorphismByImagesOps,
+#  GroupHomomorphismByFunction, GroupHomomorphismByFunctionOps,
+#  IsomorphismGroups );
 
 AUTO( ReadLib( "grplatt" ),
   ShallowCopyNoSC, IsConjugacyClassSubgroups, ConjugacyClassSubgroups,
@@ -701,11 +704,11 @@ AUTO( ReadLib( "list" ),
   Sortex, Permuted, PositionSorted, Product, Sum, Iterated, Maximum, Minimum,
   R_N, R_X, RandomList, RandomSeed, PositionSet, SortingPerm, PermListList );
 
-AUTO( ReadLib( "mapping" ),
-  IsGeneralMapping, IsMapping, Image, Images, ImagesRepresentative, PreImage,
-  PreImages, PreImagesRepresentative, CompositionMapping, PowerMapping,
-  MappingOps, CompositionMappingOps, InverseMappingOps, MappingByFunction,
-  MappingByFunctionOps, Embedding, Projection, Mappings, MappingsOps );
+#AUTO( ReadLib( "mapping" ),
+#  IsGeneralMapping, IsMapping, Image, Images, ImagesRepresentative, PreImage,
+#  PreImages, PreImagesRepresentative, CompositionMapping, PowerMapping,
+#  MappingOps, CompositionMappingOps, InverseMappingOps, MappingByFunction,
+#  MappingByFunctionOps, Embedding, Projection, Mappings, MappingsOps );
 
 AUTO( ReadLib( "matgrp" ),
   IsMatGroup, MatGroupOps, MatPermPNumVec, MatPermPVecNum, MatPermPPermMatrix,
@@ -1029,8 +1032,56 @@ AUTO( ReadGrp( "trans" ),
 # load packages
 
 ReadLib("double");
+
+ReadLib("abattoir");
+
+MappingOps := OperationsRecord("MappingOps" );
+
+
+ReadLib("domain");
+
+ReadLib("group");
+
+#ReadLib("mapping");
+
+ReadLib("grphomom");
+
+ReadLib("grpelms");
+
+ReadLib("mapping");
+
+
+
+
+
+
+
+#ReadLib("");
+#ReadLib("");
+#ReadLib("");
+#ReadLib("");
+#ReadLib("");
+
 ReadLib("list");
 ReadLib("field");
+
+
+# NEW
+
+
+#dispatch
+#operatio
+#grplatt
+#grpcoset
+#grpprods
+#grpctbl
+#monomial
+#classfun
+#integer
+#ring
+
+#END NEW
+
 ReadLib("util");
 ReadLib("delay");
 ReadLib("namespaces");
@@ -1043,6 +1094,30 @@ ReadLib("complex");
 ReadLib("smartcomplete");
 ReadLib("colors");
 ReadLib("rec2json");
+
+
+#NEW
+
+#rational
+#numfield
+#polynom
+#numtheor
+#matrix
+#algebra
+#module
+#rowspace
+#vecspace
+#matgrp
+#matring
+#polyrat
+#polyfld
+
+
+
+
+AppendTo("RealLibTraceAUTO.txt", "*** Last Explicit ReadLib\n");
+
+
 
 CantCopy(Rationals);
 CantCopy(Doubles);

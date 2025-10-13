@@ -27,6 +27,14 @@
 ##
 ##
 
+Declare(Image, PreImage, NormalClosure, PCore, IsSubgroup, AgGroup, Index);
+Declare(IsomorphismTypeFiniteSimpleGroup, SylowSubgroup, IsNormal); 
+
+# in grphomom
+Declare(GroupHomomorphismByImages);
+# in grpelms
+Declare(Order);
+
 
 #############################################################################
 ##
@@ -131,30 +139,6 @@ Group := function ( arg )
 
 end;
 
-GroupElementsOps.Group := function ( GroupElements, gens, id )
-    local   G;          # group containing <gens>, result
-
-    # make the domain
-    G            := rec();
-    G.isDomain   := true;
-    G.isGroup    := true;
-
-    # enter identification
-    G.identity   := id;
-    if id in gens  then
-        G.generators := Filtered( gens, gen -> gen <> id );
-    else
-        G.generators := ShallowCopy( gens );
-    fi;
-
-    # enter operations record
-    G.operations := GroupOps;
-
-    # return the group
-    return G;
-
-end;
-
 
 #############################################################################
 ##
@@ -175,37 +159,6 @@ AsGroup := function ( D )
     # convert a list into a group
     else
         G := Domain( D ).operations.AsGroup( D );
-    fi;
-
-    # return the group
-    return G;
-
-end;
-
-GroupElementsOps.AsGroup := function ( D )
-    local   G,  L;
-
-    # handle trivial case
-    if IsGroup( D )  then
-        G := ShallowCopy( D );
-
-    # otherwise take elements from the domain
-    else
-        D := Set( D );
-        L := ShallowCopy( D );
-        G := TrivialSubgroup( Group( D, D[1]^0 ) );
-        SubtractSet( L, Elements( G ) );
-        while 0 < Length(L)  do
-            G := Closure( G, L[1] );
-            SubtractSet( L, Elements( G ) );
-        od;
-        if Length( Elements( G ) ) <> Length( D )  then
-            Error( "the elements of <D> must form a group" );
-        fi;
-        G := Group( G.generators, D[1]^0 );
-        G.elements := D;
-        G.isFinite := true;
-        G.size     := Length( D );
     fi;
 
     # return the group
@@ -3820,11 +3773,11 @@ end;
 ##
 #R  Read  . . . . . . . . . . . . .  read other function from the other files
 ##
-ReadLib( "grphomom" );
-ReadLib( "operatio" );
-ReadLib( "grplatt"  );
-ReadLib( "grpcoset" );
-ReadLib( "grpprods" );
-ReadLib( "grpctbl"  );
-ReadLib( "monomial"  );
+#ReadLib( "grphomom" );
+#ReadLib( "operatio" );
+#ReadLib( "grplatt"  );
+#ReadLib( "grpcoset" );
+#ReadLib( "grpprods" );
+#ReadLib( "grpctbl"  );
+#ReadLib( "monomial"  );
 
