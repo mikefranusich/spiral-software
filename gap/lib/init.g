@@ -213,7 +213,14 @@ end;
 PrintTo("RealLibTraceAUTO.txt", "*** START ***\n");
 
 ReadLib := function ( name )
-    AppendTo("RealLibTraceAUTO.txt", name, "\n");   
+    AppendTo("RealLibTraceAUTO.txt", "auto ", name, "\n");   
+    if not ReadPath( LIBNAME, name, ".g", "ReadLib" )  then
+     Error("the library file '",name,"' must exist and be readable");
+    fi;
+end;
+
+ReadLib2 := function ( name )
+    AppendTo("RealLibTraceAUTO.txt", "load ", name, "\n");   
     if not ReadPath( LIBNAME, name, ".g", "ReadLib" )  then
      Error("the library file '",name,"' must exist and be readable");
     fi;
@@ -222,6 +229,7 @@ end;
 GRPNAME := ReplacedString( LIBNAME, "lib", "grp" );
 
 ReadGrp := function ( name )
+    AppendTo("RealLibTraceAUTO.txt", "grp  ", name, "\n");  
     if not ReadPath( GRPNAME, name, ".grp", "ReadGrp" )  then
      Error("the group library file '",name,"' must exist and be readable");
     fi;
@@ -1031,24 +1039,22 @@ AUTO( ReadGrp( "trans" ),
 
 # load packages
 
-ReadLib("double");
+ReadLib2("double");
 
-ReadLib("abattoir");
+ReadLib2("abattoir");
 
 MappingOps := OperationsRecord("MappingOps" );
 
 
-ReadLib("domain");
+ReadLib2("domain");
 
-ReadLib("group");
+ReadLib2("group");
 
-#ReadLib("mapping");
+ReadLib2("grphomom");
 
-ReadLib("grphomom");
+ReadLib2("grpelms");
 
-ReadLib("grpelms");
-
-ReadLib("mapping");
+ReadLib2("mapping");
 
 
 
@@ -1062,8 +1068,8 @@ ReadLib("mapping");
 #ReadLib("");
 #ReadLib("");
 
-ReadLib("list");
-ReadLib("field");
+ReadLib2("list");
+ReadLib2("field");
 
 
 # NEW
@@ -1082,18 +1088,18 @@ ReadLib("field");
 
 #END NEW
 
-ReadLib("util");
-ReadLib("delay");
-ReadLib("namespaces");
-ReadLib("newpackage");
-ReadLib("save");
-ReadLib("base");
-ReadLib("hash");
-ReadLib("float");
-ReadLib("complex");
-ReadLib("smartcomplete");
-ReadLib("colors");
-ReadLib("rec2json");
+ReadLib2("util");
+ReadLib2("delay");
+ReadLib2("namespaces");
+ReadLib2("newpackage");
+ReadLib2("save");
+ReadLib2("base");
+ReadLib2("hash");
+ReadLib2("float");
+ReadLib2("complex");
+ReadLib2("smartcomplete");
+ReadLib2("colors");
+ReadLib2("rec2json");
 
 
 #NEW

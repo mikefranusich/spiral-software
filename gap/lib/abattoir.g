@@ -287,6 +287,8 @@ ReadPkg := function( arg )
     od;
     Append( fln, arg[Length(arg)] );
     IsString(fln);
+    
+    AppendTo("RealLibTraceAUTO.txt", "pkg  ", fln, "\n"); 
 
     # read in file -- try bare name first. If that fails, try with .g
     if not READ(fln)  then
